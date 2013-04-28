@@ -25,19 +25,18 @@ worse than Hakyll own templates.
 ## Examples Please!
 
 ```haskell
--- Import qualified if you don't want to hide Prelude
-import Text.Blaze.Html5
+import Hakyll.Web.Template.Blaze
+import qualified Text.Blaze.Html5 as H
 
 blazeTemplate :: Template Compiler String
--- or blazeTemplate :: MonadMetadata m => Template m String if you prefer so
 blazeTemplate ctx item = do
     title <- context "title"
     return $
-        docTypeHtml $ do
-            head $ title $ toHtml title
-            body $ do
-                h1 $ toHtml title
-                article $ preEscapedToHtml $ itemBody item
+        H.docTypeHtml $ do
+            H.head $ H.title $ toHtml title
+            H.body $ do
+                H.h1 $ toHtml title
+                H.article $ safeToHtml $ itemBody item
 ```
 
 is equivalent to
@@ -58,20 +57,21 @@ is equivalent to
 But this is too boring, so let's do whatever regular Hakyll templates can't.
 
 ```haskell
-import Text.Blaze.Html5
+import Hakyll.Web.Template.Blaze
+import qualified Text.Blaze.Html5 as H
 
 blazeTemplate :: Template Compiler String
 blazeTemplate ctx item = do
     title <- context "title"
     return $
-        docTypeHtml $ do
-            head $ title $ toHtml title
-            body $ do
-                h1 $ toHtml if title == "Hakyll is cool"
+        H.docTypeHtml $ do
+            H.head $ H.title $ toHtml title
+            H.body $ do
+                H.h1 $ toHtml if title == "Hakyll is cool"
                                 then "Blaze is cool too"
                                 else title
-                article $ preEscapedToHtml $ itemBody item
-                ul $ mapM_ (\e -> li $ toHtml $ e ++ " is cool too")
+                H.article $ safeToHtml $ itemBody item
+                H.ul $ mapM_ (\e -> H.li $ toHtml $ e ++ " is cool too")
                     ["Haskell", "Unicode", "Computers", "Whatever else"]
 ```
 
@@ -98,4 +98,3 @@ instead of regular
             >>= loadAndApplyTemplate "templates/base.html" baseContext
             >>= relativizeUrls
 ```
-
