@@ -9,19 +9,23 @@ import Hakyll           (Context(..), Item, Compiler, itemSetBody,
                          missingField, itemBody)
 import Data.Monoid      (mappend)
 import Data.List        (intercalate)
+import Text.Blaze.Html                       (Html)
+import Text.Blaze.Html.Renderer.String       (renderHtml)
 
-type Template m a = (String -> Item a -> m a) -> Item a -> m a
+type Template m a = (String -> m String) -> Item a -> m Html
 
 
 applyTemplate :: Template Compiler String -- | Blaze template
               -> Context String           -- | Hakyll context
               -> Item String              -- | The item
               -> Compiler (Item String)   -- | Resulting HTML
-applyTemplate tpl ctx item = tpl ctx' item >>=
-    \body -> return $ itemSetBody body item
+applyTemplate tpl ctx item =
+    tpl ctx' item
+    >>= return . renderHtml
+    >>= \body -> return $ itemSetBody body item
   where
-    ctx' :: String -> Item String -> Compiler String
-    ctx' = unContext (ctx `mappend` missingField)
+    ctx' :: String -> Compiler String
+    ctx' key = unContext (ctx `mappend` missingField) key item
 
 
 applyTemplateListWith :: String                   -- | String to join template
