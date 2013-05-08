@@ -3,6 +3,10 @@ module Hakyll.Web.Template.Blaze
     , applyTemplate
     , applyTemplateList
     , applyTemplateListWith
+
+    , string
+    , preEscapedString
+    -- For API compatibility with first release
     , toHtml
     , safeToHtml
     ) where
@@ -12,6 +16,7 @@ import Hakyll                          (Context(..), Item, Compiler,
 import Data.Monoid                     (mappend)
 import Data.List                       (intercalate)
 import Text.Blaze.Html                 (Html)
+import Text.Blaze.Internal             (string, preEscapedString)
 import qualified Text.Blaze.Html as H
 import Text.Blaze.Html.Renderer.String (renderHtml)
 
@@ -46,15 +51,9 @@ applyTemplateList = applyTemplateListWith ""
 
 
 toHtml, safeToHtml :: String -> Html
--- | Synonym for blaze's toHtml. The only difference being that input string is
--- enforced to String type. This is necessary for easy use of this function
--- with -XOverloadedStrings. Otherwise compiler can't infer the appropriate
--- type to use and fails.
-toHtml = H.toHtml
+-- | toHtml specialised to String.
+toHtml = string
 
--- | Synonym for blaze's preEscapedToHtml. The only difference being that input
--- string is enforced to String type. This is necessary for easy use of this
--- function with -XOverloadedStrings. Otherwise compiler can't infer the
--- appropriate type to use and fails.
+-- | preEscapedToHtml specialised to String
 -- Also safeToHtml sounds better than preEscapedToHtml
-safeToHtml = H.preEscapedToHtml
+safeToHtml = preEscapedString
